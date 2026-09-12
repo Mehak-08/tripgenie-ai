@@ -220,5 +220,7 @@ AI travel Agent/
 
 ---
 
+## Publicly Accessible Link : https://tripgenie-ai-qe5e.onrender.com/        
+
 ## 📜 License
 This project is open-source and built for educational, portfolio, and personal travel planning use. Happy travels! ✈️🌍
