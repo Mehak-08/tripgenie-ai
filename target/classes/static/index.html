@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TripGenie AI | Multi-Agent Travel Planner (GPT-6 Astra)</title>
+  <meta name="description" content="TripGenie AI - Autonomous Multi-Agent Travel Planner powered by Java and GPT-6 Astra. Input budget, destination, and dates to receive your vacation itinerary." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Ambient ocean + sunset background elements -->
+  <div class="cosmic-bg">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Top Navigation -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-badge-ring">
+          <span class="brand-icon">🧞‍♂️</span>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">TripGenie <span class="gradient-text">AI</span></div>
+          <div class="brand-subtitle">Multi-Agent Vacation Architect</div>
+        </div>
+      </div>
+
+      <!-- Live Agent Status Indicators (Interactive Agent Profiles) -->
+      <div class="agent-roster-pill" id="agentRoster" role="toolbar" aria-label="TripGenie Autonomous AI Agent Roster">
+        <button type="button" class="agent-chip chip-orchestrator active" data-agent="atlas" title="Click to inspect Atlas (Lead Orchestrator)" aria-label="Inspect Atlas Agent">
+          <span class="agent-dot"></span>
+          <span class="chip-avatar">🌟</span>
+          <span class="chip-name">Atlas</span>
+        </button>
+        <button type="button" class="agent-chip chip-flight" data-agent="flight" title="Click to inspect AeroStream (Flight Routes & Fares)" aria-label="Inspect AeroStream Agent">
+          <span class="agent-dot"></span>
+          <span class="chip-avatar">✈️</span>
+          <span class="chip-name">AeroStream</span>
+        </button>
+        <button type="button" class="agent-chip chip-stay" data-agent="stay" title="Click to inspect Sanctuary (Stays & Neighborhoods)" aria-label="Inspect Sanctuary Agent">
+          <span class="agent-dot"></span>
+          <span class="chip-avatar">🏨</span>
+          <span class="chip-name">Sanctuary</span>
+        </button>
+        <button type="button" class="agent-chip chip-activity" data-agent="activity" title="Click to inspect Curator (Daily Experiences & Culture)" aria-label="Inspect Curator Agent">
+          <span class="agent-dot"></span>
+          <span class="chip-avatar">🎭</span>
+          <span class="chip-name">Curator</span>
+        </button>
+        <button type="button" class="agent-chip chip-budget" data-agent="budget" title="Click to inspect Auditor (Budget & Tradeoff Analyst)" aria-label="Inspect Auditor Agent">
+          <span class="agent-dot"></span>
+          <span class="chip-avatar">⚖️</span>
+          <span class="chip-name">Auditor</span>
+        </button>
+      </div>
+
+      <!-- Controls -->
+      <div class="header-actions">
+        <div class="model-indicator" id="modelBadge">
+          <span class="pulse-indicator"></span>
+          <span class="model-name">GPT-6 Astra</span>
+        </div>
+        <button id="soundToggleBtn" class="icon-btn" title="Toggle Synthesized Audio Chimes" aria-label="Toggle Sound">
+          <span id="soundIcon">🔊</span>
+        </button>
+        <button id="settingsBtn" class="icon-btn" title="Engine Settings & Model Config" aria-label="Open Settings">
+          ⚙️
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Hero / Trip Form Section -->
+    <section class="hero-section" id="heroSection">
+      <div class="hero-badge">
+        <span class="sparkle">🌊</span> OCEAN & SUNSET EDITION • POWERED BY JAVA 24 & GPT-6 ASTRA
+      </div>
+      <h1 class="hero-title">
+        Your Wish is Our Itinerary. Engineered by <span class="gradient-text">TripGenie AI</span>
+      </h1>
+      <p class="hero-desc">
+        Tell TripGenie your dream destination, budget, and dates. Watch 5 specialized AI agents converse, negotiate tradeoffs, and assemble your sun-kissed vacation itinerary in real-time.
+      </p>
+
+      <!-- Interactive Input Deck -->
+      <div class="glass-card trip-form-card">
+        <form id="tripForm" onsubmit="return false;">
+          <div class="form-grid">
+            <!-- Destination with Quick Chips -->
+            <div class="form-group col-span-2">
+              <label for="destinationInput" class="form-label">
+                <span class="label-icon">📍</span> Destination City or Country
+              </label>
+              <div class="input-wrapper">
+                <input 
+                  type="text" 
+                  id="destinationInput" 
+                  class="form-input" 
+                  placeholder="e.g., Tokyo, Japan or Paris, France or Bali, Indonesia" 
+                  value="Tokyo, Japan" 
+                  required 
+                />
+              </div>
+              <div class="quick-chips">
+                <span class="chip-hint">Popular:</span>
+                <button type="button" class="preset-chip active" data-dest="Tokyo, Japan">Tokyo 🇯🇵</button>
+                <button type="button" class="preset-chip" data-dest="Paris, France">Paris 🇫🇷</button>
+                <button type="button" class="preset-chip" data-dest="Bali, Indonesia">Bali 🇮🇩</button>
+                <button type="button" class="preset-chip" data-dest="Rome, Italy">Rome 🇮🇹</button>
+                <button type="button" class="preset-chip" data-dest="Swiss Alps, Switzerland">Swiss Alps 🇨🇭</button>
+                <button type="button" class="preset-chip" data-dest="Dubai, UAE">Dubai 🇦🇪</button>
+                <button type="button" class="preset-chip" data-dest="New York, USA">New York 🇺🇸</button>
+              </div>
+            </div>
+
+            <!-- Origin City -->
+            <div class="form-group">
+              <label for="originInput" class="form-label">
+                <span class="label-icon">🛫</span> Departing From
+              </label>
+              <input 
+                type="text" 
+                id="originInput" 
+                class="form-input" 
+                placeholder="e.g., New York (JFK)" 
+                value="New York (JFK)" 
+              />
+            </div>
+
+            <!-- Budget -->
+            <div class="form-group">
+              <label for="budgetInput" class="form-label">
+                <span class="label-icon">💰</span> Total Budget Cap
+              </label>
+              <div class="budget-input-group">
+                <select id="currencySelect" class="form-select currency-select">
+                  <option value="USD" selected>$ USD</option>
+                  <option value="EUR">€ EUR</option>
+                  <option value="GBP">£ GBP</option>
+                  <option value="INR">₹ INR</option>
+                  <option value="JPY">¥ JPY</option>
+                </select>
+                <input 
+                  type="number" 
+                  id="budgetInput" 
+                  class="form-input budget-input" 
+                  min="300" 
+                  step="50" 
+                  value="2400" 
+                  required 
+                />
+              </div>
+              <div class="budget-pills">
+                <button type="button" class="budget-pill" data-val="1200">$1,200</button>
+                <button type="button" class="budget-pill active" data-val="2400">$2,400</button>
+                <button type="button" class="budget-pill" data-val="3800">$3,800</button>
+                <button type="button" class="budget-pill" data-val="6000">$6,000</button>
+              </div>
+            </div>
+
+            <!-- Departure Date -->
+            <div class="form-group">
+              <label for="startDateInput" class="form-label">
+                <span class="label-icon">📅</span> Departure Date
+              </label>
+              <input type="date" id="startDateInput" class="form-input" required />
+            </div>
+
+            <!-- Return Date -->
+            <div class="form-group">
+              <label for="endDateInput" class="form-label">
+                <span class="label-icon">📅</span> Return Date
+              </label>
+              <input type="date" id="endDateInput" class="form-input" required />
+              <div class="trip-duration-badge" id="tripDurationBadge">5 Nights / 6 Days</div>
+            </div>
+
+            <!-- Travelers -->
+            <div class="form-group">
+              <label for="travelersInput" class="form-label">
+                <span class="label-icon">👥</span> Travelers
+              </label>
+              <select id="travelersInput" class="form-select">
+                <option value="1" selected>Solo Voyager (1)</option>
+                <option value="2">Couple / Duo (2)</option>
+                <option value="3">Small Group (3)</option>
+                <option value="4">Family / Friends (4)</option>
+              </select>
+            </div>
+
+            <!-- Travel Style -->
+            <div class="form-group">
+              <label for="styleInput" class="form-label">
+                <span class="label-icon">✨</span> Travel Style
+              </label>
+              <select id="styleInput" class="form-select">
+                <option value="Balanced Explorer" selected>🧭 Balanced Explorer (Culture + Hidden Gems)</option>
+                <option value="Luxury Nomad">👑 Luxury Nomad (High-End & Wellness)</option>
+                <option value="Budget Backpacker">🎒 Budget Backpacker (Maximizing Value)</option>
+                <option value="Gastronomic Immersion">🍜 Gastronomic & Street Food Seeker</option>
+                <option value="High-Vibe Outdoor Adventure">🧗 Epic Nature & Adventure</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-submit-row">
+            <button type="button" id="launchBtn" class="btn-primary glow-btn">
+              <span class="btn-sparkle">✦</span>
+              <span class="btn-text">INITIALIZE MULTI-AGENT SWARM</span>
+              <span class="btn-icon">➔</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Real-time Agent Command Deck (The "Show") -->
+    <section class="agent-command-section hidden" id="agentCommandSection">
+      <div class="command-deck-header">
+        <div class="deck-title-group">
+          <div class="live-dot-pulse"></div>
+          <h2>Multi-Agent Negotiation Swarm in Progress</h2>
+        </div>
+        <div class="deck-phase-badge" id="deckPhaseBadge">
+          PHASE 1: INGESTION & SCOPING
+        </div>
+      </div>
+
+      <!-- Agent Constellation Radar Visualizer -->
+      <div class="radar-container glass-card">
+        <div class="radar-hud">
+          <div class="hud-item"><span class="hud-label">ENGINE:</span> <span class="hud-val">GPT-6 ASTRA v24.3</span></div>
+          <div class="hud-item"><span class="hud-label">COGNITIVE LATENCY:</span> <span class="hud-val">12ms (STREAMING)</span></div>
+          <div class="hud-item"><span class="hud-label">SYNCHRONIZATION:</span> <span class="hud-val" id="hudSyncVal">ACTIVE</span></div>
+        </div>
+
+        <div class="constellation-stage" id="constellationStage">
+          <!-- Center Orchestrator Node -->
+          <div class="node node-orchestrator interactive-node" id="nodeOrchestrator" data-agent="atlas" role="button" tabindex="0" title="Click to inspect Atlas (Lead Orchestrator)">
+            <div class="node-pulse"></div>
+            <div class="node-icon">🌟</div>
+            <div class="node-title">Atlas</div>
+            <div class="node-badge">Lead Orchestrator</div>
+          </div>
+
+          <!-- Satellite Agent Nodes -->
+          <div class="node node-flight interactive-node" id="nodeFlight" data-agent="flight" role="button" tabindex="0" title="Click to inspect AeroStream (Flight Specialist)">
+            <div class="node-pulse"></div>
+            <div class="node-icon">✈️</div>
+            <div class="node-title">AeroStream</div>
+            <div class="node-badge">Flight Specialist</div>
+          </div>
+
+          <div class="node node-stay interactive-node" id="nodeStay" data-agent="stay" role="button" tabindex="0" title="Click to inspect Sanctuary (Stays Specialist)">
+            <div class="node-pulse"></div>
+            <div class="node-icon">🏨</div>
+            <div class="node-title">Sanctuary</div>
+            <div class="node-badge">Stays Specialist</div>
+          </div>
+
+          <div class="node node-activity interactive-node" id="nodeActivity" data-agent="activity" role="button" tabindex="0" title="Click to inspect Curator (Experiences & Vibe)">
+            <div class="node-pulse"></div>
+            <div class="node-icon">🎭</div>
+            <div class="node-title">Curator</div>
+            <div class="node-badge">Activities & Vibe</div>
+          </div>
+
+          <div class="node node-budget interactive-node" id="nodeBudget" data-agent="budget" role="button" tabindex="0" title="Click to inspect Auditor (Budget Auditor)">
+            <div class="node-pulse"></div>
+            <div class="node-icon">⚖️</div>
+            <div class="node-title">Auditor</div>
+            <div class="node-badge">Budget Auditor</div>
+          </div>
+
+          <!-- SVG Laser Energy Connection Beams -->
+          <svg class="beam-svg" id="beamSvg" viewBox="0 0 800 360">
+            <line id="beamFlight" x1="400" y1="180" x2="180" y2="80" class="beam" />
+            <line id="beamStay" x1="400" y1="180" x2="620" y2="80" class="beam" />
+            <line id="beamActivity" x1="400" y1="180" x2="200" y2="280" class="beam" />
+            <line id="beamBudget" x1="400" y1="180" x2="600" y2="280" class="beam" />
+          </svg>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="progress-wrap">
+          <div class="progress-header">
+            <span class="progress-label" id="progressStatusText">Orchestrator formulating trip envelope...</span>
+            <span class="progress-percent" id="progressPercent">10%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width: 10%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Agent Chat Feed / Terminal -->
+      <div class="terminal-card glass-card">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <div class="terminal-title">TRIPGENIE_AGENT_BUS // GPT-6 ASTRA LIVE FEED</div>
+          <div class="terminal-status"><span class="blink-dot"></span> STREAMING INTER-AGENT DIALOGUE</div>
+        </div>
+        <div class="terminal-feed" id="terminalFeed">
+          <!-- Messages will be dynamically rendered here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Complete Handover Dossier Display Section -->
+    <section class="dossier-section hidden" id="dossierSection">
+      <!-- Dossier Hero Banner -->
+      <div class="dossier-hero glass-card" id="dossierHeroCard">
+        <div class="dossier-hero-bg" id="dossierHeroBg"></div>
+        <div class="dossier-hero-overlay"></div>
+        <div class="dossier-hero-content">
+          <div class="dossier-tags">
+            <span class="badge-tag tag-verified">✓ DOSSIER VERIFIED & SIGNED</span>
+            <span class="badge-tag tag-model" id="dossierModelTag">POWERED BY GPT-6 ASTRA</span>
+            <span class="badge-tag tag-country" id="dossierCountryBadge">JAPAN</span>
+          </div>
+          <h2 class="dossier-destination" id="dossierDestName">Tokyo, Japan</h2>
+          <p class="dossier-tagline" id="dossierTagline">Where ancient Shinto sanctuaries meet neon-lit futuristic alleyways</p>
+          <p class="dossier-summary" id="dossierSummaryText">...</p>
+
+          <!-- Fast Metrics Row -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-icon">💰</span>
+              <div class="metric-info">
+                <span class="metric-label">TOTAL TRIP SPEND</span>
+                <span class="metric-val" id="metricTotalSpend">$2,280.00</span>
+                <span class="metric-sub" id="metricSavings">Saved $120 under budget</span>
+              </div>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">🗓️</span>
+              <div class="metric-info">
+                <span class="metric-label">EXPEDITION DURATION</span>
+                <span class="metric-val" id="metricDuration">5 Nights / 6 Days</span>
+                <span class="metric-sub" id="metricDates">Oct 12 - Oct 17</span>
+              </div>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">🌤️</span>
+              <div class="metric-info">
+                <span class="metric-label">CLIMATE & WEATHER</span>
+                <span class="metric-val" id="metricWeather">21°C Clear Skies</span>
+                <span class="metric-sub">Optimal travel window</span>
+              </div>
+            </div>
+            <div class="metric-card">
+              <span class="metric-icon">🛡️</span>
+              <div class="metric-info">
+                <span class="metric-label">EMERGENCY BUFFER</span>
+                <span class="metric-val" id="metricBuffer">$240.00</span>
+                <span class="metric-sub">Untouchable reserve</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dossier Navigation Tabs -->
+      <div class="dossier-tabs-nav">
+        <button class="tab-btn active" data-tab="tab-itinerary">
+          <span class="tab-icon">🗺️</span> Day-by-Day Master Plan
+        </button>
+        <button class="tab-btn" data-tab="tab-flights">
+          <span class="tab-icon">✈️</span> Flight Passes
+        </button>
+        <button class="tab-btn" data-tab="tab-hotel">
+          <span class="tab-icon">🏨</span> Accommodation
+        </button>
+        <button class="tab-btn" data-tab="tab-budget">
+          <span class="tab-icon">📊</span> Budget & Donut Breakdown
+        </button>
+        <button class="tab-btn" data-tab="tab-prep">
+          <span class="tab-icon">🧳</span> Smart Prep & Hacks
+        </button>
+        <button class="tab-btn" data-tab="tab-tweak">
+          <span class="tab-icon">💬</span> Copilot Tweak (Atlas)
+        </button>
+      </div>
+
+      <!-- TAB CONTENTS -->
+
+      <!-- TAB 1: ITINERARY -->
+      <div class="tab-pane active" id="tab-itinerary">
+        <div class="itinerary-layout">
+          <!-- Day Selector Pills -->
+          <div class="day-pills-bar" id="dayPillsBar">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Active Day Details -->
+          <div class="day-container" id="dayContainer">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: FLIGHTS -->
+      <div class="tab-pane" id="tab-flights">
+        <div class="flights-layout" id="flightsContainer">
+          <!-- Boarding passes rendered by JS -->
+        </div>
+      </div>
+
+      <!-- TAB 3: HOTEL -->
+      <div class="tab-pane" id="tab-hotel">
+        <div class="hotel-showcase glass-card" id="hotelContainer">
+          <!-- Hotel showcase rendered by JS -->
+        </div>
+      </div>
+
+      <!-- TAB 4: BUDGET BREAKDOWN -->
+      <div class="tab-pane" id="tab-budget">
+        <div class="budget-layout glass-card">
+          <div class="budget-grid">
+            <div class="chart-col">
+              <h3 class="pane-subtitle">Autonomous Budget Allocation</h3>
+              <div class="donut-chart-container">
+                <svg id="budgetDonutSvg" viewBox="0 0 240 240" class="donut-svg"></svg>
+                <div class="donut-center-stat">
+                  <span class="donut-stat-label">TOTAL ALLOCATION</span>
+                  <span class="donut-stat-val" id="donutTotalVal">$2,400</span>
+                </div>
+              </div>
+              <div class="donut-legend" id="donutLegend"></div>
+            </div>
+
+            <div class="table-col">
+              <h3 class="pane-subtitle">Auditor Balance Sheet</h3>
+              <table class="budget-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Specialist Agent</th>
+                    <th>Allocation</th>
+                    <th>Share</th>
+                  </tr>
+                </thead>
+                <tbody id="budgetTableBody"></tbody>
+              </table>
+
+              <div class="audit-notes-card">
+                <div class="audit-notes-title">⚖️ Auditor Tradeoff Intelligence:</div>
+                <ul class="audit-notes-list" id="auditNotesList"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: PREP & PACKING -->
+      <div class="tab-pane" id="tab-prep">
+        <div class="prep-layout">
+          <!-- Interactive Packing Checklist -->
+          <div class="prep-card glass-card">
+            <div class="prep-header">
+              <span class="prep-icon">🧳</span>
+              <h3>Interactive Packing Checklist</h3>
+            </div>
+            <p class="prep-sub">Check off items as you pack for your voyage:</p>
+            <div class="checklist-items" id="packingChecklist"></div>
+          </div>
+
+          <!-- Local Insider Hacks -->
+          <div class="prep-card glass-card">
+            <div class="prep-header">
+              <span class="prep-icon">💡</span>
+              <h3>Local Insider Hacks & Customs</h3>
+            </div>
+            <p class="prep-sub">Field intelligence curated by Curator & Atlas:</p>
+            <div class="hacks-list" id="insiderHacksList"></div>
+          </div>
+
+          <!-- Technical & Emergency Specs -->
+          <div class="prep-card glass-card tech-card">
+            <div class="prep-header">
+              <span class="prep-icon">⚡</span>
+              <h3>Essential Destination Specifications</h3>
+            </div>
+            <div class="specs-grid">
+              <div class="spec-box">
+                <span class="spec-label">CURRENCY & PAYMENT:</span>
+                <span class="spec-val" id="specCurrency">...</span>
+              </div>
+              <div class="spec-box">
+                <span class="spec-label">POWER PLUG TYPE:</span>
+                <span class="spec-val" id="specPower">...</span>
+              </div>
+              <div class="spec-box">
+                <span class="spec-label">EMERGENCY HOTLINE:</span>
+                <span class="spec-val highlight-red" id="specEmergency">...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: CONVERSATIONAL TWEAKS (COPILOT) -->
+      <div class="tab-pane" id="tab-tweak">
+        <div class="tweak-layout glass-card">
+          <div class="tweak-header">
+            <div class="tweak-avatar">🌟</div>
+            <div>
+              <h3>Refine Your Trip with Atlas (Lead Orchestrator)</h3>
+              <p class="tweak-sub">Ask Atlas to modify hotels, add culinary tours, adjust the pace, or balance activities.</p>
+            </div>
+          </div>
+
+          <div class="tweak-prompts">
+            <span class="prompt-hint">Try asking:</span>
+            <button type="button" class="tweak-preset-btn" data-msg="Add more authentic street food tours and ramen experiences">🍜 More foodie street food</button>
+            <button type="button" class="tweak-preset-btn" data-msg="Change the travel pace to be more relaxed and mindful">🧘 Slower relaxed wellness pace</button>
+            <button type="button" class="tweak-preset-btn" data-msg="Upgrade accommodation to boutique suite with panoramic views">🏨 Upgrade room category</button>
+            <button type="button" class="tweak-preset-btn" data-msg="Infuse more outdoor nature and hiking viewpoints">🧗 More scenic nature & viewpoints</button>
+          </div>
+
+          <div class="tweak-input-row">
+            <input type="text" id="tweakTextInput" class="form-input tweak-input" placeholder="Tell Atlas what adjustments you'd like to make..." />
+            <button type="button" id="sendTweakBtn" class="btn-primary tweak-send-btn">
+              <span>Apply Tweak</span> ➔
+            </button>
+          </div>
+
+          <div class="tweak-feedback hidden" id="tweakFeedback">
+            <div class="spinner-small"></div>
+            <span>Atlas is synchronizing with specialized agents...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Global Dossier Action Toolbar -->
+      <div class="dossier-actions-bar">
+        <button type="button" id="printBtn" class="action-btn btn-secondary">
+          <span>🖨️</span> Print / Export Dossier PDF
+        </button>
+        <button type="button" id="exportJsonBtn" class="action-btn btn-secondary">
+          <span>📥</span> Export Dossier JSON
+        </button>
+        <button type="button" id="planAnotherBtn" class="action-btn btn-accent">
+          <span>✨</span> Plan Another Expedition
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop hidden" id="settingsModal">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">⚙️</span>
+          <h3>GPT-6 Astra Intelligence Engine Settings</h3>
+        </div>
+        <button type="button" class="modal-close" id="closeSettingsBtn">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="settings-group">
+          <label for="modelSelect" class="form-label">Active AI Model:</label>
+          <select id="modelSelect" class="form-select">
+            <option value="gpt-6-astra" selected>GPT-6 Astra (Autonomous Swarm Core - Default)</option>
+            <option value="gpt-6-astra-turbo">GPT-6 Astra Turbo (Low-Latency)</option>
+            <option value="gpt-6-astra-omni">GPT-6 Astra Omni (Full Sensory Reasoning)</option>
+          </select>
+          <span class="setting-hint">Native autonomous Java agent orchestration is enabled.</span>
+        </div>
+
+        <div class="settings-group">
+          <label for="apiKeyInput" class="form-label">Custom OpenAI / Astra API Key (Optional):</label>
+          <input type="password" id="apiKeyInput" class="form-input" placeholder="sk-..." />
+          <span class="setting-hint">Optional: If provided, live LLM calls will be made to your endpoint. When blank, the high-intelligence built-in simulation engine powers the agents immediately.</span>
+        </div>
+
+        <div class="settings-group">
+          <label for="endpointInput" class="form-label">Custom Endpoint URL:</label>
+          <input type="text" id="endpointInput" class="form-input" value="https://api.openai.com/v1" />
+        </div>
+
+        <div class="settings-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="fallbackToggle" checked />
+            <span>Enable high-intelligence autonomous fallback when offline or without key</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="cancelSettingsBtn">Close</button>
+        <button type="button" class="btn-primary" id="saveSettingsBtn">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Agent Dossier & Intelligence Profile Modal -->
+  <div class="modal-backdrop hidden" id="agentProfileModal" role="dialog" aria-modal="true" aria-labelledby="agentModalTitle">
+    <div class="modal-card glass-card agent-modal-card">
+      <div class="agent-modal-header">
+        <div class="agent-modal-tabs" id="agentModalNav" role="tablist">
+          <button type="button" class="agent-nav-tab active" data-agent="atlas" role="tab">
+            <span class="tab-emoji">🌟</span> Atlas
+          </button>
+          <button type="button" class="agent-nav-tab" data-agent="flight" role="tab">
+            <span class="tab-emoji">✈️</span> AeroStream
+          </button>
+          <button type="button" class="agent-nav-tab" data-agent="stay" role="tab">
+            <span class="tab-emoji">🏨</span> Sanctuary
+          </button>
+          <button type="button" class="agent-nav-tab" data-agent="activity" role="tab">
+            <span class="tab-emoji">🎭</span> Curator
+          </button>
+          <button type="button" class="agent-nav-tab" data-agent="budget" role="tab">
+            <span class="tab-emoji">⚖️</span> Auditor
+          </button>
+        </div>
+        <button type="button" class="modal-close" id="closeAgentModalBtn" aria-label="Close Agent Dossier">✕</button>
+      </div>
+
+      <div class="agent-modal-body" id="agentModalBody">
+        <!-- Content dynamically rendered by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- SMART TRAVEL UTILITY FOOTER -->
+  <footer class="app-footer">
+    <!-- Live World Timezones Bar -->
+    <div class="world-clock-strip">
+      <div class="clock-strip-header">
+        <span class="clock-strip-icon">🌐</span>
+        <span class="clock-strip-title">LIVE TRAVEL TIMEZONES</span>
+      </div>
+      <div class="clocks-grid">
+        <div class="clock-chip">
+          <span class="clock-flag">🇯🇵</span>
+          <span class="clock-city">Tokyo</span>
+          <span class="clock-time" id="clockTokyo">--:--:--</span>
+          <span class="clock-period">JST (UTC+9)</span>
+        </div>
+        <div class="clock-chip">
+          <span class="clock-flag">🇫🇷</span>
+          <span class="clock-city">Paris</span>
+          <span class="clock-time" id="clockParis">--:--:--</span>
+          <span class="clock-period">CET (UTC+1)</span>
+        </div>
+        <div class="clock-chip">
+          <span class="clock-flag">🇮🇩</span>
+          <span class="clock-city">Bali</span>
+          <span class="clock-time" id="clockBali">--:--:--</span>
+          <span class="clock-period">WITA (UTC+8)</span>
+        </div>
+        <div class="clock-chip">
+          <span class="clock-flag">🇺🇸</span>
+          <span class="clock-city">New York</span>
+          <span class="clock-time" id="clockNYC">--:--:--</span>
+          <span class="clock-period">EDT (UTC-4)</span>
+        </div>
+        <div class="clock-chip">
+          <span class="clock-flag">🇦🇪</span>
+          <span class="clock-city">Dubai</span>
+          <span class="clock-time" id="clockDubai">--:--:--</span>
+          <span class="clock-period">GST (UTC+4)</span>
+        </div>
+        <div class="clock-chip">
+          <span class="clock-flag">🇮🇹</span>
+          <span class="clock-city">Rome</span>
+          <span class="clock-time" id="clockRome">--:--:--</span>
+          <span class="clock-period">CET (UTC+1)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-Column Useful Travel Utility Hub -->
+    <div class="footer-utilities-grid">
+      <!-- Col 1: Instant Currency Calculator -->
+      <div class="footer-util-card glass-card">
+        <div class="util-card-header">
+          <span class="util-icon">💱</span>
+          <h4>Quick Currency Converter</h4>
+        </div>
+        <p class="util-desc">Calculate your spending power abroad instantly:</p>
+        <div class="currency-calc-box">
+          <div class="calc-row">
+            <input type="number" id="calcAmount" class="form-input calc-input" value="100" min="1" />
+            <select id="calcFrom" class="form-select calc-select">
+              <option value="USD" selected>USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+              <option value="INR">INR (₹)</option>
+            </select>
+          </div>
+          <div class="calc-divider">⇄ ESTIMATED VALUE ⇄</div>
+          <div class="calc-output-grid">
+            <div class="calc-stat"><span class="c-code">EUR (€):</span> <span class="c-val" id="resEUR">€92.50</span></div>
+            <div class="calc-stat"><span class="c-code">JPY (¥):</span> <span class="c-val" id="resJPY">¥15,400</span></div>
+            <div class="calc-stat"><span class="c-code">IDR (Rp):</span> <span class="c-val" id="resIDR">1.58M Rp</span></div>
+            <div class="calc-stat"><span class="c-code">GBP (£):</span> <span class="c-val" id="resGBP">£79.10</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 2: One-Click Expedition Shortcuts -->
+      <div class="footer-util-card glass-card">
+        <div class="util-card-header">
+          <span class="util-icon">⚡</span>
+          <h4>1-Click Vacation Presets</h4>
+        </div>
+        <p class="util-desc">Load and plan a curated getaway with a single tap:</p>
+        <div class="preset-shortcuts-list">
+          <button type="button" class="preset-shortcut-btn" data-dest="Tokyo, Japan" data-budget="2600" data-style="Gastronomic Immersion">
+            <span class="shortcut-emoji">🍣</span>
+            <div class="shortcut-info">
+              <span class="shortcut-title">Tokyo Cyberpunk & Street Eats</span>
+              <span class="shortcut-sub">5 Nights • $2,600 • Foodie Focus</span>
+            </div>
+            <span class="shortcut-arrow">➔</span>
+          </button>
+          <button type="button" class="preset-shortcut-btn" data-dest="Bali, Indonesia" data-budget="1800" data-style="Balanced Explorer">
+            <span class="shortcut-emoji">🌴</span>
+            <div class="shortcut-info">
+              <span class="shortcut-title">Ubud Jungle Villa & Terraces</span>
+              <span class="shortcut-sub">6 Nights • $1,800 • Pool Villas</span>
+            </div>
+            <span class="shortcut-arrow">➔</span>
+          </button>
+          <button type="button" class="preset-shortcut-btn" data-dest="Paris, France" data-budget="3200" data-style="Luxury Nomad">
+            <span class="shortcut-emoji">🥐</span>
+            <div class="shortcut-info">
+              <span class="shortcut-title">Romantic Seine & Louvre Art</span>
+              <span class="shortcut-sub">5 Nights • $3,200 • Le Marais</span>
+            </div>
+            <span class="shortcut-arrow">➔</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Col 3: Global Travel Emergency Directory -->
+      <div class="footer-util-card glass-card">
+        <div class="util-card-header">
+          <span class="util-icon">🛡️</span>
+          <h4>Global Travel SOS Hotline</h4>
+        </div>
+        <p class="util-desc">Universal emergency numbers for international travelers:</p>
+        <div class="emergency-list">
+          <div class="sos-row">
+            <span class="sos-country">🇯🇵 Japan:</span>
+            <span class="sos-num">Police: 110 | Medical: 119</span>
+          </div>
+          <div class="sos-row">
+            <span class="sos-country">🇪🇺 European Union:</span>
+            <span class="sos-num">Universal: 112</span>
+          </div>
+          <div class="sos-row">
+            <span class="sos-country">🇮🇩 Indonesia (Bali):</span>
+            <span class="sos-num">Police: 110 | Medical: 118</span>
+          </div>
+          <div class="sos-row">
+            <span class="sos-country">🇺🇸 USA:</span>
+            <span class="sos-num">Universal: 911</span>
+          </div>
+          <div class="sos-row">
+            <span class="sos-country">🇦🇪 UAE (Dubai):</span>
+            <span class="sos-num">Police: 999 | Medical: 998</span>
+          </div>
+        </div>
+        <div class="embassy-note">
+          <span>💡 <strong>Tip:</strong> Dialing <strong>112</strong> from any mobile phone globally connects to local emergency services without a SIM.</span>
+        </div>
+      </div>
+
+      <!-- Col 4: Swarm Intelligence Guarantee -->
+      <div class="footer-util-card glass-card">
+        <div class="util-card-header">
+          <span class="util-icon">🧠</span>
+          <h4>How Your Swarm Protects You</h4>
+        </div>
+        <p class="util-desc">Why TripGenie AI delivers superior travel confidence:</p>
+        <ul class="swarm-feature-list">
+          <li><strong>Zero Sponsored Ads:</strong> Hotels and flights are picked purely for transit convenience and budget savings.</li>
+          <li><strong>Untouchable 10% Cushion:</strong> Auditor locks an emergency reserve so you are never stranded.</li>
+          <li><strong>Cluster Transit:</strong> Activities are routed geographically to avoid hours spent stuck in traffic.</li>
+          <li><strong>100% Private & Local:</strong> Your personal trip data is never tracked or shared with brokers.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar with Back-to-Top -->
+    <div class="footer-bottom-bar">
+      <div class="footer-brand-lockup">
+        <span class="f-logo">🧞‍♂️</span>
+        <span class="f-name">TripGenie AI</span>
+        <span class="f-tag">• Autonomous Multi-Agent Expedition Architect</span>
+      </div>
+      <button type="button" id="backToTopBtn" class="back-to-top-btn">
+        <span>↑</span> Back to Top
+      </button>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
